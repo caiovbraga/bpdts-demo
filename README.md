@@ -14,7 +14,16 @@ Source code can be found in `fast-api/main.py`. This single file REST server is 
 
 ---
 ## Deployment
-An ansible playbook `ansible/` is used to copy a docker compose stack in the target host, build the application image, create 2 container replicas and start the service.
+
+### Ansible
+An ansible playbook under `ansible/` is used to copy a docker compose stack in the target host, build the application image, create 2 container replicas and start the service.
+
+
+### Jenkins
+Also a `Jenkinsfile` is used to build and push a container image to the github repository. However, this image is not used in the example deployment as Ansible builds the image locally.
+
+### Kubernetes
+Under directory `kubernetes/` there is a manifest file for the deployment of the fast-api image in a kubernetes cluster, the deployment uses the image built in Jenkins. Deployment not used in the example.
 
 ### Example
 A running version of this code can be found in the link below
@@ -34,9 +43,11 @@ The application is deployed in a multi-purpose server. The traefik container is 
 
 ---
 ## Notes
-This project is a simple illustration of deployment based on the task given.
+This project is a simple illustration of microservice deployment based on the task given.
 
-In a production scenario an good strategy would be using a managed Kubernetes cluster by a major cloud provider such as Amazon AWS or Azure.
+In a production scenario a good strategy would be a managed Kubernetes cluster by a major cloud provider such as Amazon AWS or Azure, if budget allows.
 
-Using AWS as an example, I would write Terraform scripts to set up the underling infrastructure (VPC, EKS, ...). Make sure security groups only exposes ports needed by the services, isolate instances in private subnets. On the application side, set up TLS comminication between services, check firewalls rules, etc
+I believe Kubernetes makes it easier to scale systems and a major provider gives you the high availability needed without the need to manually configure and manage a multi-master cluster.
+
+Using AWS as an example, I would write Terraform scripts to set up the underling infrastructure (VPC, EKS, etc.). Make sure security groups only exposes ports needed by the services, isolate instances in private subnets. On the application side, set up TLS encryption between services, check firewalls rules, etc
 
