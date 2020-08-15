@@ -1,0 +1,61 @@
+---
+  - name: Copy files to remote host and build docker compose stack
+    hosts: ["digitalocean"]
+    gather_facts: no
+    become: true
+    vars:
+      stack_name: fastapi-demo
+      stack_dir: /srv/fastapi-demo
+      docker_group: docker
+      domain_name: cvbtechnology.com
+      copy_to_remote_host: ["ansible", "fast-api"]
+      docker_image_name:
+        - { dir: "fast-api", name: "fast-api" }
+        
+    tasks:
+      - debug: var=stack_dir
+  
+      - name: Create a directory for stack
+        file:
+          path: "{{ stack_dir }}"
+          state: directory
+          owner: "{{ ansible_user }}"
+          group: "{{ docker_group }}"
+          mode: '0755'
+  
+      - name: Copy to remote host
+        copy:
+          src: "../{{ item }}"
+          dest: "{{ stack_dir }}"
+          owner: "{{ ansible_user }}"
+          group: "{{ docker_group }}"
+          #mode: '0644'
+        with_items: "{{ copy_to_remote_host }}"
+
+      - name: Copy docker-compose.yaml to remote host
+        template:
+          src: "./docker-compose.yaml.j2"
+          dest: "{{ stack_dir }}/docker-compose.yaml"
+          owner: "{{ ansible_user }}"
+          group: "{{ docker_group }}"      
+  
+      - name: Build images
+        docker_image:
+          build:
+            path: "{{ stack_dir }}/{{ item.dir}}"
+            pull: yes
+          name: "{{ item.name }}"
+          source: build
+          state: present
+          force_source: yes
+        with_items: "{{ docker_image_name }}"
+        
+      - name: Create and start services
+        docker_compose:
+          project_name: "{{ stack_name }}"
+          project_src: "{{ stack_dir }}"
+          scale:
+            fast-api: 2
+        register: output
+        
+      - debug: var=output  
