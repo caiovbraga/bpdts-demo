@@ -8,9 +8,10 @@
       stack_dir: /srv/fastapi-demo
       docker_group: docker
       domain_name: cvbtechnology.com
-      copy_to_remote_host: ["ansible", "fast-api"]
+      copy_to_remote_host: ["ansible", "fast-api", "java-api"]
       docker_image_name:
         - { dir: "fast-api", name: "fast-api" }
+        - { dir: "java-api", name: "java-api-bpdts" } 
         
     tasks:
       - debug: var=stack_dir
@@ -56,6 +57,7 @@
           project_src: "{{ stack_dir }}"
           scale:
             fast-api: 2
+            java-api-bpdts: 2
         register: output
         
       - debug: var=output  

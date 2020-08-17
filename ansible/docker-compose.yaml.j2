@@ -27,3 +27,25 @@ services:
       - traefik.http.routers.fast-api-secure-rtr.service=fast-api-secure-svc
       - traefik.http.services.fast-api-secure-svc.loadBalancer.server.port=8000
       - traefik.http.routers.fast-api-secure-rtr.tls=true
+
+  java-api-bpdts:
+      image: java-api-bpdts
+      networks: 
+        - web
+        - backend
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.java-api-bpdts-rtr.rule=Host(`java-bpdts.{{ domain_name }}`)
+        - traefik.http.routers.java-api-bpdts-rtr.entrypoints=web
+        - traefik.http.routers.java-api-bpdts-rtr.service=java-api-bpdts-svc
+        - traefik.http.services.java-api-bpdts-svc.loadBalancer.server.port=8080
+        - traefik.http.routers.java-api-rtr.middlewares=redirect-secure-javaapi
+        - traefik.http.middlewares.redirect-secure-javaapi.redirectscheme.scheme=https
+        - traefik.http.middlewares.redirect-secure-javaapi.redirectscheme.permanent=true
+        - traefik.http.middlewares.redirect-secure-javaapi.redirectscheme.port=443
+        - traefik.http.routers.java-api-bpdts-secure-rtr.rule=Host(`java-bpdts.{{ domain_name }}`)
+        - traefik.http.routers.java-api-bpdts-secure-rtr.entrypoints=web-secure
+        - traefik.http.routers.java-api-bpdts-secure-rtr.service=java-api-bpdts-secure-svc
+        - traefik.http.services.java-api-bpdts-secure-svc.loadBalancer.server.port=8080
+        - traefik.http.routers.java-api-bpdts-secure-rtr.tls=true
+        

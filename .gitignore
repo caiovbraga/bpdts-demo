@@ -1,4 +1,6 @@
 /ansible/inventory
 /fast-api/__pycache__
+/java-api/java-api/target
 bpdts_demo.odg
 .~lock.bpdts_demo.odg#
+.vscode
