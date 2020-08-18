@@ -13,15 +13,10 @@ pipeline {
             appImage2 = ''
   }
 
-  agent {
-    docker {
-        image 'maven:3-alpine' 
-        args '-v /root/.m2:/root/.m2' 
-    }
-  }
+  agent any
 
   stages {
-        stage ('Build Image 1') {
+        stage ('Build Image fast-api') {
             steps {
                 script {                   
                     appImage = docker.build("${registry}${app}", "./fast-api")
@@ -29,10 +24,19 @@ pipeline {
             }
         }
 
-        stage ('Build Image 2') {
+        stage ('Maven package') {
+            steps {
+                script {
+                     withMaven( maven: 'maven-3' ) {
+                        sh 'cd java-api/java-api && mvn -B -DskipTests clean package'
+                     }
+                 }
+             }
+        }
+                
+        stage ('Build Image java-api') {
             steps {
                 script {                   
-                    sh 'cd java-api/java-api && mvn -B -DskipTests clean package'
                     appImage2 = docker.build("${registry}${app2}", "./java-api")
                 }
             }
